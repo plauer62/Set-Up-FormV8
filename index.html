@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MyStreme Setup</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Roboto+Condensed:wght@600;700&display=swap" rel="stylesheet">
+
+<style>
+body{
+  margin:0;
+  font-family:'Inter',sans-serif;
+  background:radial-gradient(circle at top,#0b2b33 0%,#04161c 60%,#010b0f 100%);
+  color:#fff;
+}
+
+.page{
+  display:none;
+  min-height:100vh;
+  padding:40px 20px 60px;
+  box-sizing:border-box;
+}
+
+.page.active{display:block;}
+
+h1,h2{
+  text-align:center;
+  font-weight:800;
+}
+
+.center{text-align:center;}
+
+button{
+  background:#0c3c47;
+  color:#fff;
+  border:none;
+  padding:14px 24px;
+  border-radius:12px;
+  font-weight:600;
+  cursor:pointer;
+}
+
+button.primary{
+  background:linear-gradient(90deg,#0099cc,#00ccff);
+}
+
+.button-row{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  margin-top:30px;
+}
+
+/* Inputs */
+input[type=email],
+input[type=password]{
+  width:100%;
+  padding:14px;
+  margin-bottom:15px;
+  border-radius:10px;
+  border:none;
+  background:#0b2228;
+  color:#fff;
+}
+
+/* Service selection */
+.service{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  background:#0b2228;
+  padding:14px;
+  border-radius:14px;
+  margin-bottom:10px;
+  transition:.2s;
+}
+
+.service.selected{
+  background:#083640;
+  border:1px solid #00ccff;
+}
+
+.service img{
+  height:30px;
+}
+
+.service input{transform:scale(1.2);}
+
+/* Likes & Dislikes */
+.genre-container{margin-top:20px;}
+
+.genre{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  background:#0b2228;
+  padding:12px 14px;
+  border-radius:14px;
+  margin-bottom:10px;
+  font-family:'Roboto Condensed',sans-serif;
+  font-size:18px;
+  transition:.2s;
+}
+
+.genre.liked{
+  background:#0f3a24;
+  border:1px solid #0b7a40;
+}
+
+.genre.disliked{
+  background:#3a0f16;
+  border:1px solid #8a1e2a;
+}
+
+.thumb{
+  display:flex;
+  gap:8px;
+}
+
+.thumb button{
+  padding:6px 10px;
+  font-size:16px;
+  border-radius:8px;
+}
+
+/* 2-up layout */
+.two-up{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+
+.two-up .genre{
+  margin-bottom:0;
+  font-size:17px;
+}
+
+/* Tolerance */
+.tolerance-table{
+  margin-top:30px;
+  display:grid;
+  grid-template-columns:1.2fr 1fr 1fr 1fr;
+  border-radius:16px;
+  overflow:hidden;
+  border:1px solid rgba(255,255,255,.1);
+}
+
+.tolerance-header,
+.tolerance-row{display:contents;}
+
+.tolerance-cell{
+  padding:18px 10px;
+  border-bottom:1px solid rgba(255,255,255,.05);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.tolerance-label{
+  justify-content:flex-start;
+  padding-left:20px;
+  font-weight:600;
+  font-size:20px;
+}
+
+.tolerance-option input{
+  width:20px;
+  height:20px;
+  accent-color:#00ccff;
+}
+
+.tolerance-row.selected{
+  background:rgba(0,204,255,.08);
+}
+
+.tolerance-row:last-child .tolerance-cell{
+  border-bottom:none;
+}
+
+.show-more{
+  color:#00ccff;
+  cursor:pointer;
+  margin-top:10px;
+}
+
+</style>
+</head>
+<body>
+
+<!-- PAGE 1 -->
+<div class="page active" id="page1">
+  <div class="center">
+    <img src="assets/MyStremeLogo.png" style="height:120px;">
+  </div>
+  <h1>Welcome to MyStreme</h1>
+  <input type="email" placeholder="Email">
+  <input type="password" placeholder="Password">
+  <div class="button-row">
+    <div></div>
+    <button class="primary" onclick="nextPage()">Next</button>
+  </div>
+</div>
+
+<!-- PAGE 2 Streaming Services -->
+<div class="page" id="page2">
+  <h2>Please select services you subscribe to:</h2>
+  <div id="services"></div>
+  <div class="button-row">
+    <button onclick="prevPage()">Back</button>
+    <button class="primary" onclick="nextPage()">Next</button>
+  </div>
+</div>
+
+<!-- PAGE 3 Likes -->
+<div class="page" id="page3">
+  <h2>Likes & Dislikes</h2>
+  <div id="genres" class="genre-container"></div>
+  <div class="show-more" onclick="toggleMore()">Show More...</div>
+  <div class="button-row">
+    <button onclick="prevPage()">Back</button>
+    <button class="primary" onclick="nextPage()">Next</button>
+  </div>
+</div>
+
+<!-- PAGE 4 Tolerance -->
+<div class="page" id="page4">
+  <h2>Are you sensitive to explicit content?</h2>
+
+  <div class="tolerance-table">
+
+    <div class="tolerance-header">
+      <div class="tolerance-cell"></div>
+      <div class="tolerance-cell">Very</div>
+      <div class="tolerance-cell">A Little</div>
+      <div class="tolerance-cell">Not at All</div>
+    </div>
+
+    <div class="tolerance-row">
+      <div class="tolerance-cell tolerance-label">Violence</div>
+      <div class="tolerance-cell tolerance-option"><input type="radio" name="violence"></div>
+      <div class="tolerance-cell tolerance-option"><input type="radio" name="violence"></div>
+      <div class="tolerance-cell tolerance-option"><input type="radio" name="violence"></div>
+    </div>
+
+    <div class="tolerance-row">
+      <div class="tolerance-cell tolerance-label">Sex</div>
+      <div class="tolerance-cell tolerance-option"><input type="radio" name="sex"></div>
+      <div class="tolerance-cell tolerance-option"><input type="radio" name="sex"></div>
+      <div class="tolerance-cell tolerance-option"><input type="radio" name="sex"></div>
+    </div>
+
+    <div class="tolerance-row">
+      <div class="tolerance-cell tolerance-label">Language</div>
+      <div class="tolerance-cell tolerance-option"><input type="radio" name="language"></div>
+      <div class="tolerance-cell tolerance-option"><input type="radio" name="language"></div>
+      <div class="tolerance-cell tolerance-option"><input type="radio" name="language"></div>
+    </div>
+
+  </div>
+
+  <div class="button-row">
+    <button onclick="prevPage()">Back</button>
+    <button class="primary" onclick="nextPage()">Finish</button>
+  </div>
+</div>
+
+<!-- PAGE 5 -->
+<div class="page" id="page5">
+  <h1>Your MyStreme account is set up!</h1>
+  <div class="center">You can edit your info and preferences in Settings.</div>
+  <div class="button-row">
+    <button onclick="window.location='https://MyStreme.netlify.app'">Launch MyStreme</button>
+    <button class="primary">Give Me a Tour</button>
+  </div>
+</div>
+
+<script>
+let currentPage=1;
+function nextPage(){
+  document.getElementById("page"+currentPage).classList.remove("active");
+  currentPage++;
+  document.getElementById("page"+currentPage).classList.add("active");
+}
+function prevPage(){
+  document.getElementById("page"+currentPage).classList.remove("active");
+  currentPage--;
+  document.getElementById("page"+currentPage).classList.add("active");
+}
+
+/* SERVICES */
+const servicesList=[
+"Netflix","PrimeVideo","AppleTV","DisneyPlus","Hulu",
+"HBOMax","Peacock","Paramount","Tubi","YouTubeTV","Fubo"
+];
+
+const servicesDiv=document.getElementById("services");
+
+function renderServices(){
+  servicesDiv.innerHTML="";
+  servicesList.forEach(name=>{
+    const div=document.createElement("div");
+    div.className="service";
+    div.innerHTML=`<img src="assets/${name}.png">
+                   <input type="checkbox">`;
+    div.onclick=()=>{
+      div.classList.toggle("selected");
+      reorderServices();
+    }
+    servicesDiv.appendChild(div);
+  });
+}
+
+function reorderServices(){
+  const items=[...servicesDiv.children];
+  items.sort((a,b)=>{
+    if(a.classList.contains("selected") && !b.classList.contains("selected")) return -1;
+    if(!a.classList.contains("selected") && b.classList.contains("selected")) return 1;
+    return 0;
+  });
+  items.forEach(i=>servicesDiv.appendChild(i));
+}
+renderServices();
+
+/* GENRES */
+const topGenres=["Action","Comedy","Documentary","Horror","RealityTV","Sci-Fi","Romance","Thriller","Kids"];
+const moreGenres=["Stand Up","LGBQT","Sports","Faith","Musical","Crime","Foreign","Classics","War","Western","Anime"];
+
+let showingMore=false;
+const genreDiv=document.getElementById("genres");
+
+function renderGenres(){
+  genreDiv.innerHTML="";
+  const list=showingMore?[...topGenres,...moreGenres]:topGenres;
+  list.forEach(g=>{
+    const div=document.createElement("div");
+    div.className="genre";
+    div.innerHTML=`${g}
+      <div class="thumb">
+        <button onclick="event.stopPropagation();like(this)">👍</button>
+        <button onclick="event.stopPropagation();dislike(this)">👎</button>
+      </div>`;
+    genreDiv.appendChild(div);
+  });
+}
+function toggleMore(){
+  showingMore=!showingMore;
+  renderGenres();
+}
+function like(btn){
+  const row=btn.closest(".genre");
+  row.classList.remove("disliked");
+  row.classList.toggle("liked");
+}
+function dislike(btn){
+  const row=btn.closest(".genre");
+  row.classList.remove("liked");
+  row.classList.toggle("disliked");
+}
+renderGenres();
+
+/* TOLERANCE HIGHLIGHT */
+document.addEventListener("change",e=>{
+  if(e.target.type==="radio"){
+    const row=e.target.closest(".tolerance-row");
+    document.querySelectorAll(".tolerance-row").forEach(r=>{
+      if(r.querySelector("input:checked")) r.classList.add("selected");
+      else r.classList.remove("selected");
+    });
+  }
+});
+</script>
+
+</body>
+</html>
