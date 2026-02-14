@@ -1,375 +1,1220 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MyStreme Setup</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>MyStreme – Set-Up</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Roboto+Condensed:wght@600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --stroke: rgba(255,255,255,0.10);
+      --text: rgba(255,255,255,0.92);
+      --muted: rgba(255,255,255,0.62);
+      --muted2: rgba(255,255,255,0.46);
+      --accent:#29c7ff;
 
-<style>
-body{
-  margin:0;
-  font-family:'Inter',sans-serif;
-  background:radial-gradient(circle at top,#0b2b33 0%,#04161c 60%,#010b0f 100%);
-  color:#fff;
-}
+      --shadow: 0 18px 40px rgba(0,0,0,0.55);
+      --radius: 18px;
+      --radius2: 26px;
 
-.page{
-  display:none;
-  min-height:100vh;
-  padding:40px 20px 60px;
-  box-sizing:border-box;
-}
+      /* Darker (≈15%) than prior */
+      --like:   #16d17d; /* darker green */
+      --dislike:#d83b55; /* darker red */
 
-.page.active{display:block;}
-
-h1,h2{
-  text-align:center;
-  font-weight:800;
-}
-
-.center{text-align:center;}
-
-button{
-  background:#0c3c47;
-  color:#fff;
-  border:none;
-  padding:14px 24px;
-  border-radius:12px;
-  font-weight:600;
-  cursor:pointer;
-}
-
-button.primary{
-  background:linear-gradient(90deg,#0099cc,#00ccff);
-}
-
-.button-row{
-  display:flex;
-  justify-content:space-between;
-  gap:10px;
-  margin-top:30px;
-}
-
-/* Inputs */
-input[type=email],
-input[type=password]{
-  width:100%;
-  padding:14px;
-  margin-bottom:15px;
-  border-radius:10px;
-  border:none;
-  background:#0b2228;
-  color:#fff;
-}
-
-/* Service selection */
-.service{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  background:#0b2228;
-  padding:14px;
-  border-radius:14px;
-  margin-bottom:10px;
-  transition:.2s;
-}
-
-.service.selected{
-  background:#083640;
-  border:1px solid #00ccff;
-}
-
-.service img{
-  height:30px;
-}
-
-.service input{transform:scale(1.2);}
-
-/* Likes & Dislikes */
-.genre-container{margin-top:20px;}
-
-.genre{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  background:#0b2228;
-  padding:12px 14px;
-  border-radius:14px;
-  margin-bottom:10px;
-  font-family:'Roboto Condensed',sans-serif;
-  font-size:18px;
-  transition:.2s;
-}
-
-.genre.liked{
-  background:#0f3a24;
-  border:1px solid #0b7a40;
-}
-
-.genre.disliked{
-  background:#3a0f16;
-  border:1px solid #8a1e2a;
-}
-
-.thumb{
-  display:flex;
-  gap:8px;
-}
-
-.thumb button{
-  padding:6px 10px;
-  font-size:16px;
-  border-radius:8px;
-}
-
-/* 2-up layout */
-.two-up{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:10px;
-}
-
-.two-up .genre{
-  margin-bottom:0;
-  font-size:17px;
-}
-
-/* Tolerance */
-.tolerance-table{
-  margin-top:30px;
-  display:grid;
-  grid-template-columns:1.2fr 1fr 1fr 1fr;
-  border-radius:16px;
-  overflow:hidden;
-  border:1px solid rgba(255,255,255,.1);
-}
-
-.tolerance-header,
-.tolerance-row{display:contents;}
-
-.tolerance-cell{
-  padding:18px 10px;
-  border-bottom:1px solid rgba(255,255,255,.05);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
-
-.tolerance-label{
-  justify-content:flex-start;
-  padding-left:20px;
-  font-weight:600;
-  font-size:20px;
-}
-
-.tolerance-option input{
-  width:20px;
-  height:20px;
-  accent-color:#00ccff;
-}
-
-.tolerance-row.selected{
-  background:rgba(0,204,255,.08);
-}
-
-.tolerance-row:last-child .tolerance-cell{
-  border-bottom:none;
-}
-
-.show-more{
-  color:#00ccff;
-  cursor:pointer;
-  margin-top:10px;
-}
-
-</style>
-</head>
-<body>
-
-<!-- PAGE 1 -->
-<div class="page active" id="page1">
-  <div class="center">
-    <img src="assets/MyStremeLogo.png" style="height:120px;">
-  </div>
-  <h1>Welcome to MyStreme</h1>
-  <input type="email" placeholder="Email">
-  <input type="password" placeholder="Password">
-  <div class="button-row">
-    <div></div>
-    <button class="primary" onclick="nextPage()">Next</button>
-  </div>
-</div>
-
-<!-- PAGE 2 Streaming Services -->
-<div class="page" id="page2">
-  <h2>Please select services you subscribe to:</h2>
-  <div id="services"></div>
-  <div class="button-row">
-    <button onclick="prevPage()">Back</button>
-    <button class="primary" onclick="nextPage()">Next</button>
-  </div>
-</div>
-
-<!-- PAGE 3 Likes -->
-<div class="page" id="page3">
-  <h2>Likes & Dislikes</h2>
-  <div id="genres" class="genre-container"></div>
-  <div class="show-more" onclick="toggleMore()">Show More...</div>
-  <div class="button-row">
-    <button onclick="prevPage()">Back</button>
-    <button class="primary" onclick="nextPage()">Next</button>
-  </div>
-</div>
-
-<!-- PAGE 4 Tolerance -->
-<div class="page" id="page4">
-  <h2>Are you sensitive to explicit content?</h2>
-
-  <div class="tolerance-table">
-
-    <div class="tolerance-header">
-      <div class="tolerance-cell"></div>
-      <div class="tolerance-cell">Very</div>
-      <div class="tolerance-cell">A Little</div>
-      <div class="tolerance-cell">Not at All</div>
-    </div>
-
-    <div class="tolerance-row">
-      <div class="tolerance-cell tolerance-label">Violence</div>
-      <div class="tolerance-cell tolerance-option"><input type="radio" name="violence"></div>
-      <div class="tolerance-cell tolerance-option"><input type="radio" name="violence"></div>
-      <div class="tolerance-cell tolerance-option"><input type="radio" name="violence"></div>
-    </div>
-
-    <div class="tolerance-row">
-      <div class="tolerance-cell tolerance-label">Sex</div>
-      <div class="tolerance-cell tolerance-option"><input type="radio" name="sex"></div>
-      <div class="tolerance-cell tolerance-option"><input type="radio" name="sex"></div>
-      <div class="tolerance-cell tolerance-option"><input type="radio" name="sex"></div>
-    </div>
-
-    <div class="tolerance-row">
-      <div class="tolerance-cell tolerance-label">Language</div>
-      <div class="tolerance-cell tolerance-option"><input type="radio" name="language"></div>
-      <div class="tolerance-cell tolerance-option"><input type="radio" name="language"></div>
-      <div class="tolerance-cell tolerance-option"><input type="radio" name="language"></div>
-    </div>
-
-  </div>
-
-  <div class="button-row">
-    <button onclick="prevPage()">Back</button>
-    <button class="primary" onclick="nextPage()">Finish</button>
-  </div>
-</div>
-
-<!-- PAGE 5 -->
-<div class="page" id="page5">
-  <h1>Your MyStreme account is set up!</h1>
-  <div class="center">You can edit your info and preferences in Settings.</div>
-  <div class="button-row">
-    <button onclick="window.location='https://MyStreme.netlify.app'">Launch MyStreme</button>
-    <button class="primary">Give Me a Tour</button>
-  </div>
-</div>
-
-<script>
-let currentPage=1;
-function nextPage(){
-  document.getElementById("page"+currentPage).classList.remove("active");
-  currentPage++;
-  document.getElementById("page"+currentPage).classList.add("active");
-}
-function prevPage(){
-  document.getElementById("page"+currentPage).classList.remove("active");
-  currentPage--;
-  document.getElementById("page"+currentPage).classList.add("active");
-}
-
-/* SERVICES */
-const servicesList=[
-"Netflix","PrimeVideo","AppleTV","DisneyPlus","Hulu",
-"HBOMax","Peacock","Paramount","Tubi","YouTubeTV","Fubo"
-];
-
-const servicesDiv=document.getElementById("services");
-
-function renderServices(){
-  servicesDiv.innerHTML="";
-  servicesList.forEach(name=>{
-    const div=document.createElement("div");
-    div.className="service";
-    div.innerHTML=`<img src="assets/${name}.png">
-                   <input type="checkbox">`;
-    div.onclick=()=>{
-      div.classList.toggle("selected");
-      reorderServices();
+      /* ✅ NEW: matrix column widths (keeps head + rows perfectly aligned) */
+      --mxCol: 86px;
+      --mxColLast: 96px;
     }
-    servicesDiv.appendChild(div);
-  });
-}
 
-function reorderServices(){
-  const items=[...servicesDiv.children];
-  items.sort((a,b)=>{
-    if(a.classList.contains("selected") && !b.classList.contains("selected")) return -1;
-    if(!a.classList.contains("selected") && b.classList.contains("selected")) return 1;
-    return 0;
-  });
-  items.forEach(i=>servicesDiv.appendChild(i));
-}
-renderServices();
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
 
-/* GENRES */
-const topGenres=["Action","Comedy","Documentary","Horror","RealityTV","Sci-Fi","Romance","Thriller","Kids"];
-const moreGenres=["Stand Up","LGBQT","Sports","Faith","Musical","Crime","Foreign","Classics","War","Western","Anime"];
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      color:var(--text);
+      background:
+        radial-gradient(1200px 900px at 75% 15%, rgba(41,199,255,0.12), transparent 55%),
+        radial-gradient(900px 700px at 10% 85%, rgba(41,199,255,0.10), transparent 50%),
+        linear-gradient(180deg, #04060a 0%, #06080b 55%, #030508 100%);
+      overflow-x:hidden;
+      overflow-y:auto;
+    }
 
-let showingMore=false;
-const genreDiv=document.getElementById("genres");
+    .safe{
+      padding-top: max(12px, env(safe-area-inset-top));
+      padding-bottom: max(18px, env(safe-area-inset-bottom));
+      padding-left: max(16px, env(safe-area-inset-left));
+      padding-right: max(16px, env(safe-area-inset-right));
+      min-height: 100vh;
+      display:block;
+    }
 
-function renderGenres(){
-  genreDiv.innerHTML="";
-  const list=showingMore?[...topGenres,...moreGenres]:topGenres;
-  list.forEach(g=>{
-    const div=document.createElement("div");
-    div.className="genre";
-    div.innerHTML=`${g}
-      <div class="thumb">
-        <button onclick="event.stopPropagation();like(this)">👍</button>
-        <button onclick="event.stopPropagation();dislike(this)">👎</button>
-      </div>`;
-    genreDiv.appendChild(div);
-  });
-}
-function toggleMore(){
-  showingMore=!showingMore;
-  renderGenres();
-}
-function like(btn){
-  const row=btn.closest(".genre");
-  row.classList.remove("disliked");
-  row.classList.toggle("liked");
-}
-function dislike(btn){
-  const row=btn.closest(".genre");
-  row.classList.remove("liked");
-  row.classList.toggle("disliked");
-}
-renderGenres();
+    .wrap{
+      width: min(520px, 100%);
+      margin: 0 auto;
+      padding-top: 8px;
+    }
 
-/* TOLERANCE HIGHLIGHT */
-document.addEventListener("change",e=>{
-  if(e.target.type==="radio"){
-    const row=e.target.closest(".tolerance-row");
-    document.querySelectorAll(".tolerance-row").forEach(r=>{
-      if(r.querySelector("input:checked")) r.classList.add("selected");
-      else r.classList.remove("selected");
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03));
+      border: 1px solid var(--stroke);
+      border-radius: var(--radius2);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      position:relative;
+    }
+
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      background: rgba(0,0,0,0.18);
+      backdrop-filter: blur(10px);
+    }
+
+    .steps{
+      font-size: 14px;
+      letter-spacing: 0.2px;
+      color: var(--muted);
+      white-space:nowrap;
+    }
+    .steps b{ color: var(--accent); font-weight: 650; }
+
+    .progress{
+      height: 6px;
+      width: 120px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 999px;
+      overflow:hidden;
+      border: 1px solid rgba(255,255,255,0.08);
+      flex: 0 0 auto;
+      margin-left: 10px;
+    }
+    .bar{
+      height:100%;
+      width:20%;
+      background: linear-gradient(90deg, var(--accent), rgba(41,199,255,0.55));
+      border-radius: 999px;
+      transition: width .25s ease;
+    }
+
+    .content{ padding: 14px 16px 16px; }
+
+    .logo{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding-top: 4px;
+      padding-bottom: 8px;
+    }
+    .logo img{
+      width: 170px;
+      max-width: 56vw;
+      height: auto;
+      filter: drop-shadow(0 10px 22px rgba(41,199,255,0.22));
+      opacity: 0.98;
+    }
+
+    h1{
+      margin: 2px 0 6px;
+      font-size: 24px;
+      font-weight: 750;
+      letter-spacing: 0.2px;
+    }
+    p{
+      margin: 0 0 12px;
+      color: var(--muted);
+      line-height: 1.35;
+      font-size: 15px;
+    }
+    .centerText{ text-align:center; }
+
+    .field{ margin: 12px 0; }
+    .label{
+      display:flex;
+      justify-content:space-between;
+      align-items:baseline;
+      margin-bottom: 8px;
+      color: rgba(255,255,255,0.80);
+      font-size: 14px;
+      letter-spacing: 0.2px;
+    }
+    .hint{ font-size: 13px; color: var(--muted2); }
+
+    input[type="email"], input[type="password"]{
+      width:100%;
+      padding: 14px 14px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(0,0,0,0.30);
+      color: var(--text);
+      outline:none;
+      font-size: 16px;
+    }
+    input[type="email"]:focus, input[type="password"]:focus{
+      border-color: rgba(41,199,255,0.55);
+      box-shadow: 0 0 0 4px rgba(41,199,255,0.10);
+    }
+
+    .seg{ display:flex; gap: 10px; flex-wrap:wrap; }
+    .chip{ position:relative; flex: 1 1 auto; min-width: 92px; }
+    .chip input{ position:absolute; opacity:0; pointer-events:none; }
+    .chip label{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding: 12px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(255,255,255,0.03);
+      color: rgba(255,255,255,0.88);
+      cursor:pointer;
+      user-select:none;
+      min-height: 44px;
+      font-weight: 620;
+      letter-spacing: 0.15px;
+      font-size: 15px;
+      transition: transform .06s ease, border-color .2s ease, background .2s ease;
+    }
+    .chip label:active{ transform: scale(0.99); }
+    .chip input:checked + label{
+      border-color: rgba(41,199,255,0.65);
+      background: rgba(41,199,255,0.12);
+      box-shadow: 0 0 0 4px rgba(41,199,255,0.10);
+      color: rgba(255,255,255,0.95);
+    }
+
+    .actions{ display:flex; gap: 12px; margin-top: 14px; }
+    .btn{
+      width:100%;
+      padding: 14px 16px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.05);
+      color: rgba(255,255,255,0.88);
+      font-weight: 700;
+      letter-spacing: 0.25px;
+      cursor:pointer;
+      min-height: 48px;
+      transition: transform .06s ease, background .2s ease, border-color .2s ease;
+      font-size: 14px;
+    }
+    .btn:active{ transform: scale(0.99); }
+    .btn.primary{
+      background: linear-gradient(180deg, rgba(41,199,255,0.22), rgba(41,199,255,0.10));
+      border-color: rgba(41,199,255,0.45);
+      color: rgba(255,255,255,0.96);
+    }
+    .btn.link{
+      background: transparent;
+      border-color: rgba(255,255,255,0.10);
+      color: rgba(255,255,255,0.82);
+    }
+
+    .error{
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,77,109,0.35);
+      background: rgba(255,77,109,0.12);
+      color: rgba(255,255,255,0.90);
+      font-size: 13px;
+      display:none;
+    }
+
+    /* ---------------- Services page ---------------- */
+    .subhead{
+      margin: 2px 0 10px;
+      font-size: 15px;
+      color: var(--muted);
+    }
+
+    .serviceList{
+      display:flex;
+      flex-direction:column;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .serviceRow{
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.03);
+      border-radius: var(--radius);
+      padding: 10px 12px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 12px;
+      min-height: 58px;
+      cursor:pointer;
+      user-select:none;
+      transition: border-color .2s ease, background .2s ease, box-shadow .2s ease;
+      min-width: 0;
+    }
+
+    .serviceRow.on{
+      border-color: rgba(41,199,255,0.55);
+      background: rgba(41,199,255,0.10);
+      box-shadow: 0 0 0 4px rgba(41,199,255,0.08);
+    }
+
+    .svcLeft{
+      display:flex;
+      align-items:center;
+      gap: 12px;
+      min-width:0;
+    }
+
+    .svcLogoBox{
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(0,0,0,0.25);
+      overflow:hidden;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      flex: 0 0 auto;
+    }
+    .svcLogoBox img{
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display:block;
+    }
+
+    .svcName{
+      font-size: 18px;
+      font-weight: 800;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      min-width:0;
+    }
+
+    .svcCheck{
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      border: 2px solid rgba(255,255,255,0.30);
+      background: transparent;
+      flex: 0 0 auto;
+      position:relative;
+    }
+    .serviceRow.on .svcCheck{
+      border-color: rgba(41,199,255,0.75);
+      background: rgba(41,199,255,0.18);
+    }
+    .serviceRow.on .svcCheck::after{
+      content:"";
+      position:absolute;
+      left: 6px;
+      top: 2px;
+      width: 6px;
+      height: 12px;
+      border-right: 3px solid rgba(255,255,255,0.92);
+      border-bottom: 3px solid rgba(255,255,255,0.92);
+      transform: rotate(45deg);
+    }
+
+    /* ---------------- Likes/Dislikes ---------------- */
+    .ldHeader{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+      margin-bottom: 6px;
+    }
+    .ldTitle{
+      font-size: 24px;
+      font-weight: 850;
+      letter-spacing: 0.2px;
+      margin: 0;
+      white-space:nowrap;
+      line-height: 1;
+    }
+    .ldPill{
+      font-size: 13px;
+      color: rgba(255,255,255,0.78);
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(255,255,255,0.03);
+      padding: 8px 10px;
+      border-radius: 999px;
+      white-space:nowrap;
+      flex: 0 0 auto;
+    }
+    .ldSub{
+      margin: 2px 0 8px;
+      font-size: 15px;
+      color: var(--muted);
+    }
+
+    .listArea{
+      display:flex;
+      flex-direction:column;
+      gap: 8px;
+      margin: 0;
+    }
+
+    /* More-condensed font stack */
+    .condensed{
+      font-family:
+        "HelveticaNeue-CondensedBold",
+        "HelveticaNeue-Condensed",
+        "Arial Narrow",
+        "Roboto Condensed",
+        "Noto Sans Condensed",
+        "DIN Condensed",
+        "Avenir Next Condensed",
+        system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      letter-spacing: 0.06px;
+    }
+
+    .gName{
+      font-weight: 900;
+      font-size: 18px;
+      line-height: 1.05;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      min-width:0;
+    }
+
+    .genreCard{
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.03);
+      border-radius: var(--radius);
+      padding: 8px 12px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+      min-height: 46px;
+      transition: background .2s ease, border-color .2s ease, box-shadow .2s ease;
+      min-width:0;
+    }
+
+    .genreCard.liked{
+      border-color: rgba(22,209,125,0.55);
+      background: rgba(22,209,125,0.12);
+      box-shadow: 0 0 0 4px rgba(22,209,125,0.07);
+    }
+    .genreCard.disliked{
+      border-color: rgba(216,59,85,0.55);
+      background: rgba(216,59,85,0.12);
+      box-shadow: 0 0 0 4px rgba(216,59,85,0.07);
+    }
+
+    .toggles{
+      display:flex;
+      gap: 8px;
+      flex-shrink:0;
+    }
+    .tbtn{
+      width: 44px;
+      height: 38px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(0,0,0,0.25);
+      color: rgba(255,255,255,0.78);
+      font-size: 18px;
+      font-weight: 800;
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      user-select:none;
+      transition: transform .06s ease, background .2s ease, border-color .2s ease, color .2s ease;
+    }
+    .tbtn:active{ transform: scale(0.99); }
+    .tbtn.like.on{
+      border-color: rgba(22,209,125,0.70);
+      background: rgba(22,209,125,0.18);
+      color: rgba(255,255,255,0.95);
+      box-shadow: 0 0 0 4px rgba(22,209,125,0.10);
+    }
+    .tbtn.dislike.on{
+      border-color: rgba(216,59,85,0.70);
+      background: rgba(216,59,85,0.18);
+      color: rgba(255,255,255,0.95);
+      box-shadow: 0 0 0 4px rgba(216,59,85,0.10);
+    }
+
+    .subRow{
+      margin-top: 8px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 12px;
+    }
+    .showMore{
+      color: rgba(41,199,255,0.92);
+      font-weight: 850;
+      cursor:pointer;
+      user-select:none;
+      padding: 6px 0;
+      font-size: 15px;
+    }
+    .countNote{
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .divider{
+      height:1px;
+      background: rgba(255,255,255,0.08);
+      margin: 8px 0;
+      display:none;
+    }
+
+    /* BALANCED 2-up grid */
+    .grid2{
+      display:grid;
+      grid-template-columns: 1fr 1fr; /* balanced */
+      gap: 10px;
+      width: 100%;
+    }
+
+    /* 2-up tiles */
+    .genreTile{
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.03);
+      border-radius: var(--radius);
+      padding: 8px 8px;           /* tighter */
+      display:flex;
+      flex-direction:row;
+      align-items:center;
+      justify-content:space-between;
+      gap: 8px;                   /* tighter */
+      min-height: 50px;           /* slightly smaller */
+      min-width:0;
+      overflow:hidden;
+    }
+
+    /* Smaller thumbs & tighter spacing for 2-up */
+    .genreTile .toggles{ gap: 6px; }
+    .genreTile .tbtn{
+      width: 36px;
+      height: 34px;
+      border-radius: 12px;
+      font-size: 16px;
+    }
+
+    /* ---------------- New Page 4: Sensitivity Matrix ---------------- */
+    .matrixWrap{
+      margin-top: 12px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(255,255,255,0.03);
+      border-radius: var(--radius);
+      overflow:hidden;
+    }
+
+    /* ✅ CHANGED: use shared vars so header and rows cannot drift apart */
+    .matrixHead{
+      display:grid;
+      grid-template-columns: minmax(0, 1fr) var(--mxCol) var(--mxCol) var(--mxColLast);
+      gap: 0;
+      padding: 10px 12px;
+      background: rgba(0,0,0,0.18);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      align-items:end;
+    }
+
+    .mh{
+      text-align:center;
+      font-size: 13px;
+      font-weight: 800;
+      color: rgba(255,255,255,0.78);
+      letter-spacing: 0.15px;
+    }
+
+    /* ✅ CHANGED: same column template as header (via vars) */
+    .matrixRow{
+      display:grid;
+      grid-template-columns: minmax(0, 1fr) var(--mxCol) var(--mxCol) var(--mxColLast);
+      align-items:center;
+      padding: 14px 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      transition: border-color .2s ease, background .2s ease, box-shadow .2s ease;
+    }
+    .matrixRow:last-child{ border-bottom: none; }
+
+    /* Row highlight when any option selected (requested) */
+    .matrixRow.selected{
+      border-color: rgba(41,199,255,0.45);
+      background: rgba(41,199,255,0.08);
+      box-shadow: inset 0 0 0 1px rgba(41,199,255,0.18);
+    }
+
+    .mrLabel{
+      font-size: 18px;
+      font-weight: 850;
+      color: rgba(255,255,255,0.92);
+    }
+
+    /* ✅ CHANGED: grid centering is more consistent than flex on iOS Safari */
+    .mOption{
+      display:grid;
+      place-items:center;
+      cursor:pointer;
+      user-select:none;
+      min-height: 34px;
+      position:relative;
+      width: 100%;
+      height: 100%;
+    }
+
+    .mOption input{
+      position:absolute;
+      opacity:0;
+      pointer-events:none;
+    }
+
+    /* ✅ CHANGED: block prevents baseline drift */
+    .mDot{
+      display:block;
+      width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      border: 2px solid rgba(255,255,255,0.35);
+      position:relative;
+    }
+
+    .mDot::after{
+      content:"";
+      position:absolute;
+      inset: 3px;
+      border-radius: 999px;
+      background: transparent;
+    }
+
+    .mOption input:checked + .mDot{
+      border-color: rgba(41,199,255,0.80);
+      box-shadow: 0 0 0 4px rgba(41,199,255,0.10);
+    }
+
+    .mOption input:checked + .mDot::after{
+      background: rgba(41,199,255,0.95);
+    }
+
+    @media (max-width: 390px){
+      /* ✅ CHANGED: only update vars so header + rows stay identical */
+      :root{
+        --mxCol: 78px;
+        --mxColLast: 88px;
+      }
+    }
+
+    /* ---------------- Success page ---------------- */
+    .success{
+      text-align:center;
+      padding: 6px 4px 0;
+    }
+    .check{
+      width: 62px;
+      height: 62px;
+      border-radius: 999px;
+      border: 1px solid rgba(22,209,125,0.45);
+      background: rgba(22,209,125,0.12);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      margin: 8px auto 10px;
+      box-shadow: 0 0 0 6px rgba(22,209,125,0.07);
+      font-size: 28px;
+    }
+    .successActions{
+      flex-direction:column;
+      margin-top: 18px;
+      gap: 20px;
+    }
+    .successActions .btn{
+      font-size: 16px;
+      letter-spacing: 0.35px;
+      min-height: 52px;
+    }
+
+    .hidden{ display:none !important; }
+  </style>
+</head>
+
+<body>
+  <div class="safe">
+    <div class="wrap">
+      <div class="card" id="cardRoot">
+        <div class="topbar">
+          <div class="steps"><b id="stepName">Welcome</b> <span id="stepSub">Step 1 of 5</span></div>
+          <div class="progress" aria-hidden="true"><div class="bar" id="bar"></div></div>
+        </div>
+
+        <div class="content">
+
+          <!-- PAGE 1 -->
+          <section id="page1">
+            <div class="logo">
+              <img src="MyStreme Logo.png" alt="MyStreme Logo" />
+            </div>
+
+            <div class="centerText">
+              <h1>Welcome to MyStreme</h1>
+              <p>Please create your account:</p>
+            </div>
+
+            <div class="field">
+              <div class="label"><span>EMAIL</span></div>
+              <input id="email" type="email" inputmode="email" autocomplete="email" placeholder="you@example.com" />
+            </div>
+
+            <div class="field">
+              <div class="label"><span>PASSWORD</span><span class="hint">8+ characters recommended</span></div>
+              <input id="password" type="password" autocomplete="new-password" placeholder="Create a password" />
+            </div>
+
+            <div class="field">
+              <div class="label"><span>Gender</span></div>
+              <div class="seg" role="radiogroup" aria-label="Gender">
+                <div class="chip">
+                  <input type="radio" name="gender" id="gM" value="M" />
+                  <label for="gM">M</label>
+                </div>
+                <div class="chip">
+                  <input type="radio" name="gender" id="gF" value="F" />
+                  <label for="gF">F</label>
+                </div>
+              </div>
+            </div>
+
+            <div class="field">
+              <div class="label"><span>Age</span></div>
+              <div class="seg" role="radiogroup" aria-label="Age Range">
+                <div class="chip">
+                  <input type="radio" name="age" id="a1" value="13-29" />
+                  <label for="a1">13-29</label>
+                </div>
+                <div class="chip">
+                  <input type="radio" name="age" id="a2" value="30-55" />
+                  <label for="a2">30-55</label>
+                </div>
+                <div class="chip">
+                  <input type="radio" name="age" id="a3" value="56+" />
+                  <label for="a3">56+</label>
+                </div>
+              </div>
+            </div>
+
+            <div class="error" id="err1"></div>
+
+            <div class="actions">
+              <button class="btn primary" id="next1">NEXT</button>
+            </div>
+          </section>
+
+          <!-- PAGE 2: Services -->
+          <section id="page2" class="hidden">
+            <h1>Please select services you subscribe to:</h1>
+            <div class="subhead">Check all that apply.</div>
+            <div id="serviceList" class="serviceList"></div>
+
+            <div class="actions">
+              <button class="btn link" id="back2">BACK</button>
+              <button class="btn primary" id="next2">NEXT</button>
+            </div>
+          </section>
+
+          <!-- PAGE 3: Likes/Dislikes -->
+          <section id="page3" class="hidden">
+            <div class="ldHeader">
+              <div class="ldTitle">Likes &amp; Dislikes</div>
+              <div class="ldPill">👍 Like &nbsp;|&nbsp; 👎 Dislike</div>
+            </div>
+
+            <div class="ldSub">Please select 3 or more:</div>
+
+            <div id="selectedArea" class="listArea"></div>
+            <div class="divider" id="ldDivider"></div>
+            <div id="unselectedArea" class="listArea"></div>
+
+            <div class="subRow">
+              <div class="showMore" id="showMore">Show More...</div>
+              <div class="countNote"><span id="count">0</span> selected</div>
+            </div>
+
+            <div class="error" id="err3"></div>
+
+            <div class="actions" style="margin-top:10px;">
+              <button class="btn link" id="back3">BACK</button>
+              <button class="btn primary" id="next3">NEXT</button>
+            </div>
+          </section>
+
+          <!-- PAGE 4: Explicit Content Sensitivity -->
+          <section id="page4" class="hidden">
+            <h1>Are you sensitive to explicit content?</h1>
+
+            <div class="matrixWrap" aria-label="Explicit content sensitivity matrix">
+              <div class="matrixHead">
+                <div></div>
+                <div class="mh">Very</div>
+                <div class="mh">A Little</div>
+                <div class="mh">Not at All</div>
+              </div>
+
+              <div class="matrixRow" data-row="violence">
+                <div class="mrLabel">Violence</div>
+
+                <label class="mOption">
+                  <input type="radio" name="sens_violence" value="Very" />
+                  <span class="mDot" aria-hidden="true"></span>
+                </label>
+
+                <label class="mOption">
+                  <input type="radio" name="sens_violence" value="A Little" />
+                  <span class="mDot" aria-hidden="true"></span>
+                </label>
+
+                <label class="mOption">
+                  <input type="radio" name="sens_violence" value="Not at All" />
+                  <span class="mDot" aria-hidden="true"></span>
+                </label>
+              </div>
+
+              <div class="matrixRow" data-row="sex">
+                <div class="mrLabel">Sex</div>
+
+                <label class="mOption">
+                  <input type="radio" name="sens_sex" value="Very" />
+                  <span class="mDot" aria-hidden="true"></span>
+                </label>
+
+                <label class="mOption">
+                  <input type="radio" name="sens_sex" value="A Little" />
+                  <span class="mDot" aria-hidden="true"></span>
+                </label>
+
+                <label class="mOption">
+                  <input type="radio" name="sens_sex" value="Not at All" />
+                  <span class="mDot" aria-hidden="true"></span>
+                </label>
+              </div>
+
+              <div class="matrixRow" data-row="language">
+                <div class="mrLabel">Language</div>
+
+                <label class="mOption">
+                  <input type="radio" name="sens_language" value="Very" />
+                  <span class="mDot" aria-hidden="true"></span>
+                </label>
+
+                <label class="mOption">
+                  <input type="radio" name="sens_language" value="A Little" />
+                  <span class="mDot" aria-hidden="true"></span>
+                </label>
+
+                <label class="mOption">
+                  <input type="radio" name="sens_language" value="Not at All" />
+                  <span class="mDot" aria-hidden="true"></span>
+                </label>
+              </div>
+            </div>
+
+            <div class="error" id="err4"></div>
+
+            <div class="actions">
+              <button class="btn link" id="back4">BACK</button>
+              <button class="btn primary" id="finish">FINISH</button>
+            </div>
+          </section>
+
+          <!-- PAGE 5: Success -->
+          <section id="page5" class="hidden">
+            <div class="success">
+              <div class="check">✓</div>
+              <h1>Your account is set up!</h1>
+              <p style="font-size:16px;">You can edit your info in Settings</p>
+            </div>
+
+            <div class="actions successActions">
+              <button class="btn primary" id="launch">LAUNCH MYSTREME</button>
+              <button class="btn" id="tour">GIVE ME A TOUR OF MYSTREME</button>
+            </div>
+          </section>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ---------- Likes/Dislikes labels ----------
+    const initialGenres = ["Action","Comedy","Documentary","Horror","RealityTV","Sci-Fi","Romance","Thriller","Kids"];
+    const moreGenres = ["Stand Up","LGBQT","Sports","Faith","Musical","Crime","Foreign","Classics","War","Western","Anime"];
+
+    // For 2-up only: special shortened labels
+    function labelFor(name, mode){
+      if (mode === "grid2" && name === "Documentary") return "Docmntary";
+      return name;
+    }
+
+    // ---------- Services (ordered by popularity; selection floats to top but preserves this order) ----------
+    const services = [
+      { key:"netflix",   name:"Netflix",     logo:"assets/Netflix.png" },
+      { key:"prime",     name:"Prime Video", logo:"assets/PrimeVideo.png" },
+      { key:"appletv",   name:"Apple TV+",   logo:"assets/AppleTV.png" },
+      { key:"disney",    name:"Disney+",     logo:"assets/DisneyPlus.png" },
+      { key:"hulu",      name:"Hulu",        logo:"assets/Hulu.png" },
+      { key:"hbomax",    name:"HBO Max",     logo:"assets/HBOMax.png" },
+      { key:"peacock",   name:"Peacock",     logo:"assets/Peacock.png" },
+      { key:"paramount", name:"Paramount+",  logo:"assets/Paramount.png" },
+      { key:"youtubetv", name:"YouTube TV",  logo:"assets/YouTubeTV.png" },
+      { key:"fubo",      name:"Fubo",        logo:"assets/Fubo.png" },
+      { key:"tubi",      name:"Tubi",        logo:"assets/Tubi.png" }
+    ];
+
+    // state maps
+    const genreState = new Map();
+    [...initialGenres, ...moreGenres].forEach(g => genreState.set(g, 0)); // 0 none, 1 like, -1 dislike
+
+    const serviceState = new Map();
+    services.forEach(s => serviceState.set(s.key, false));
+
+    let expanded = false;
+
+    // Page 4: sensitivity state
+    let sensitivity = { Violence: null, Sex: null, Language: null };
+
+    // Elements
+    const cardRoot = document.getElementById("cardRoot");
+    const bar = document.getElementById("bar");
+    const stepName = document.getElementById("stepName");
+    const stepSub  = document.getElementById("stepSub");
+
+    const page1 = document.getElementById("page1");
+    const page2 = document.getElementById("page2");
+    const page3 = document.getElementById("page3");
+    const page4 = document.getElementById("page4");
+    const page5 = document.getElementById("page5");
+
+    const err1 = document.getElementById("err1");
+    const err3 = document.getElementById("err3");
+    const err4 = document.getElementById("err4");
+
+    const selectedArea = document.getElementById("selectedArea");
+    const unselectedArea = document.getElementById("unselectedArea");
+    const ldDivider = document.getElementById("ldDivider");
+    const showMore = document.getElementById("showMore");
+    const countEl = document.getElementById("count");
+
+    function showError(el, msg){ el.textContent = msg; el.style.display = "block"; }
+    function clearError(el){ el.textContent=""; el.style.display="none"; }
+
+    function selectedCount(){
+      let c = 0;
+      for (const v of genreState.values()) if (v !== 0) c++;
+      return c;
+    }
+
+    // hard lock top (prevents iOS cut-off)
+    function hardScrollTop(){
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      cardRoot.scrollIntoView({ block: "start", inline: "nearest" });
+      requestAnimationFrame(() => {
+        document.documentElement.scrollTop = 0;
+        document.body.scrollTop = 0;
+        cardRoot.scrollIntoView({ block: "start", inline: "nearest" });
+      });
+    }
+
+    function setStep(title, n, total){
+      stepName.textContent = title;
+      stepSub.textContent = `Step ${n} of ${total}`;
+      bar.style.width = `${(n/total)*100}%`;
+    }
+
+    function goTo(which){
+      [page1,page2,page3,page4,page5].forEach(p => p.classList.add("hidden"));
+      which.classList.remove("hidden");
+
+      const total = 5;
+      if (which === page1) setStep("Welcome", 1, total);
+      if (which === page2) setStep("Services", 2, total);
+      if (which === page3) setStep("Preferences", 3, total);
+      if (which === page4) setStep("Boundaries", 4, total);
+      if (which === page5) setStep("Done", 5, total);
+
+      hardScrollTop();
+    }
+
+    // -------- Services rendering (selected flow to top, preserving original popularity order) --------
+    const serviceListEl = document.getElementById("serviceList");
+
+    function renderServices(){
+      serviceListEl.innerHTML = "";
+
+      // IMPORTANT: filter preserves original `services` ordering
+      const selected = services.filter(s => serviceState.get(s.key) === true);
+      const unselected = services.filter(s => serviceState.get(s.key) !== true);
+      const ordered = [...selected, ...unselected];
+
+      ordered.forEach(s => {
+        const row = document.createElement("div");
+        row.className = "serviceRow";
+        row.innerHTML = `
+          <div class="svcLeft">
+            <div class="svcLogoBox">
+              <img src="${s.logo}" alt="${s.name} logo" loading="lazy" />
+            </div>
+            <div class="svcName">${s.name}</div>
+          </div>
+          <div class="svcCheck" aria-hidden="true"></div>
+        `;
+
+        row.classList.toggle("on", serviceState.get(s.key) === true);
+
+        row.addEventListener("click", () => {
+          serviceState.set(s.key, !serviceState.get(s.key));
+          renderServices(); // re-render to reorder immediately
+        });
+
+        serviceListEl.appendChild(row);
+      });
+    }
+
+    // -------- Likes/Dislikes rendering --------
+    function applyBarClass(el, name){
+      el.classList.remove("liked","disliked");
+      const v = genreState.get(name);
+      if (v === 1) el.classList.add("liked");
+      if (v === -1) el.classList.add("disliked");
+    }
+
+    function genreRow(name){
+      const wrap = document.createElement("div");
+      wrap.className = "genreCard";
+      wrap.innerHTML = `
+        <div class="gName condensed">${labelFor(name, "row")}</div>
+        <div class="toggles">
+          <button class="tbtn like" aria-label="Like ${name}" title="Like">👍</button>
+          <button class="tbtn dislike" aria-label="Dislike ${name}" title="Dislike">👎</button>
+        </div>
+      `;
+
+      const likeBtn = wrap.querySelector(".like");
+      const dislikeBtn = wrap.querySelector(".dislike");
+
+      function sync(){
+        const v = genreState.get(name);
+        likeBtn.classList.toggle("on", v === 1);
+        dislikeBtn.classList.toggle("on", v === -1);
+        applyBarClass(wrap, name);
+      }
+
+      likeBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const v = genreState.get(name);
+        genreState.set(name, v === 1 ? 0 : 1);
+        renderGenres();
+      });
+
+      dislikeBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const v = genreState.get(name);
+        genreState.set(name, v === -1 ? 0 : -1);
+        renderGenres();
+      });
+
+      sync();
+      return wrap;
+    }
+
+    function genreTile2up(name){
+      const tile = document.createElement("div");
+      tile.className = "genreTile";
+      tile.innerHTML = `
+        <div class="gName condensed">${labelFor(name, "grid2")}</div>
+        <div class="toggles">
+          <button class="tbtn like" aria-label="Like ${name}" title="Like">👍</button>
+          <button class="tbtn dislike" aria-label="Dislike ${name}" title="Dislike">👎</button>
+        </div>
+      `;
+
+      const likeBtn = tile.querySelector(".like");
+      const dislikeBtn = tile.querySelector(".dislike");
+
+      likeBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const v = genreState.get(name);
+        genreState.set(name, v === 1 ? 0 : 1);
+        renderGenres();
+      });
+
+      dislikeBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const v = genreState.get(name);
+        genreState.set(name, v === -1 ? 0 : -1);
+        renderGenres();
+      });
+
+      const v = genreState.get(name);
+      likeBtn.classList.toggle("on", v === 1);
+      dislikeBtn.classList.toggle("on", v === -1);
+
+      return tile;
+    }
+
+    function renderGenres(){
+      clearError(err3);
+
+      const visible = expanded ? [...initialGenres, ...moreGenres] : [...initialGenres];
+      const liked = visible.filter(g => genreState.get(g) === 1);
+      const disliked = visible.filter(g => genreState.get(g) === -1);
+      const neutral = visible.filter(g => genreState.get(g) === 0);
+
+      selectedArea.innerHTML = "";
+      unselectedArea.innerHTML = "";
+
+      [...liked, ...disliked].forEach(g => selectedArea.appendChild(genreRow(g)));
+      ldDivider.style.display = (liked.length + disliked.length) > 0 ? "block" : "none";
+
+      if (!expanded){
+        neutral.forEach(g => unselectedArea.appendChild(genreRow(g)));
+      } else {
+        const grid = document.createElement("div");
+        grid.className = "grid2";
+        neutral.forEach(g => grid.appendChild(genreTile2up(g)));
+        unselectedArea.appendChild(grid);
+      }
+
+      showMore.textContent = expanded ? "Show Less" : "Show More...";
+      countEl.textContent = selectedCount();
+    }
+
+    // -------- Page 4: Sensitivity Matrix logic (with row highlight) --------
+    function updateRowHighlights(){
+      const rows = document.querySelectorAll(".matrixRow");
+      rows.forEach(row => {
+        const rowKey = row.getAttribute("data-row"); // violence, sex, language
+        const name = `sens_${rowKey}`;
+        const checked = document.querySelector(`input[name="${name}"]:checked`);
+        row.classList.toggle("selected", !!checked);
+      });
+    }
+
+    function readSensitivity(){
+      const v = document.querySelector('input[name="sens_violence"]:checked')?.value || null;
+      const s = document.querySelector('input[name="sens_sex"]:checked')?.value || null;
+      const l = document.querySelector('input[name="sens_language"]:checked')?.value || null;
+
+      sensitivity = { Violence: v, Sex: s, Language: l };
+      return sensitivity;
+    }
+
+    function wireSensitivityEvents(){
+      ["sens_violence","sens_sex","sens_language"].forEach(name => {
+        document.querySelectorAll(`input[name="${name}"]`).forEach(inp => {
+          inp.addEventListener("change", () => {
+            clearError(err4);
+            updateRowHighlights();
+          });
+        });
+      });
+      updateRowHighlights();
+    }
+
+    // -------- Page 1 --------
+    document.getElementById("next1").addEventListener("click", () => {
+      clearError(err1);
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+      const gender = document.querySelector('input[name="gender"]:checked')?.value || "";
+      const age = document.querySelector('input[name="age"]:checked')?.value || "";
+
+      if (!email || !email.includes("@")){
+        showError(err1, "Please enter a valid email address.");
+        return;
+      }
+      if (!password || password.length < 6){
+        showError(err1, "Please enter a password (6+ characters).");
+        return;
+      }
+      if (!gender){
+        showError(err1, "Please select Gender (M or F).");
+        return;
+      }
+      if (!age){
+        showError(err1, "Please select an Age range.");
+        return;
+      }
+
+      goTo(page2);
+      renderServices();
     });
-  }
-});
-</script>
 
+    // -------- Services page --------
+    document.getElementById("back2").addEventListener("click", () => goTo(page1));
+    document.getElementById("next2").addEventListener("click", () => {
+      goTo(page3);
+      renderGenres();
+    });
+
+    // -------- Likes/Dislikes page --------
+    document.getElementById("back3").addEventListener("click", () => goTo(page2));
+    document.getElementById("next3").addEventListener("click", () => {
+      clearError(err3);
+      if (selectedCount() < 3){
+        showError(err3, "Please select at least 3 Likes or Dislikes to continue.");
+        return;
+      }
+      goTo(page4);
+      wireSensitivityEvents();
+    });
+
+    showMore.addEventListener("click", () => {
+      expanded = !expanded;
+      renderGenres();
+      hardScrollTop();
+    });
+
+    // -------- Page 4 Buttons --------
+    document.getElementById("back4").addEventListener("click", () => goTo(page3));
+
+    document.getElementById("finish").addEventListener("click", () => {
+      clearError(err4);
+
+      readSensitivity();
+      if (!sensitivity.Violence || !sensitivity.Sex || !sensitivity.Language){
+        showError(err4, "Please select an option for Violence, Sex, and Language.");
+        return;
+      }
+
+      const payload = {
+        email: document.getElementById("email").value.trim(),
+        gender: document.querySelector('input[name="gender"]:checked')?.value || "",
+        age: document.querySelector('input[name="age"]:checked')?.value || "",
+        services: [...serviceState.entries()].filter(([_,v]) => v).map(([k]) => k),
+        likes: [...genreState.entries()].filter(([_,v]) => v === 1).map(([k]) => k),
+        dislikes: [...genreState.entries()].filter(([_,v]) => v === -1).map(([k]) => k),
+        sensitivity
+      };
+      try{ localStorage.setItem("mystreme_onboarding_v6", JSON.stringify(payload)); }catch(e){}
+
+      goTo(page5);
+    });
+
+    // -------- Success page --------
+    document.getElementById("launch").addEventListener("click", () => {
+      window.location.href = "https://mystreme.netlify.app";
+    });
+    document.getElementById("tour").addEventListener("click", () => {
+      window.location.href = "https://mystreme.netlify.app/tour";
+    });
+
+    // Init
+    goTo(page1);
+  </script>
 </body>
 </html>
